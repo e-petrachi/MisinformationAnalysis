@@ -1,0 +1,64 @@
+group 'BigData'
+version '1.0.0'
+
+apply plugin: 'java'
+apply plugin: 'idea'
+
+sourceCompatibility = 1.8
+
+
+task fatJar1(type: Jar) {
+    dependsOn configurations.runtime
+    from {
+        (configurations.runtime - configurations.provided_1).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    manifest {
+        attributes  'Implementation-Title': 'Gradle Jar File Example',
+                'Implementation-Version': version,
+                'Main-Class': 'mapreduce.job1.AmazonFoodAnalytic'
+    }
+    baseName = 'AmazonFoodAnalytic1-all'
+    with jar
+    zip64 = true
+}
+
+task fatJar1s(type: Jar) {
+    dependsOn configurations.runtime
+    from {
+        (configurations.runtime - configurations.provided_2).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    manifest {
+        attributes  'Implementation-Title': 'Gradle Jar File Example',
+                'Implementation-Version': version,
+                'Main-Class': 'mrspark.job1.AmazonFoodAnalytic'
+    }
+    baseName = 'AmazonFoodAnalytic1s-all'
+    with jar
+    zip64 = true
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
+}
+
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    provided_1
+    provided_2
+    compile.extendsFrom provided_1
+    compile.extendsFrom provided_2
+
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    provided_2 group: 'org.apache.hadoop', name: 'hadoop-core', version: '1.2.1'
+    provided_1 group: 'org.apache.spark', name: 'spark-core_2.11', version: '2.3.0'
+    compile group: 'log4j', name: 'log4j', version: '1.2.17'
+    compile group: 'com.opencsv', name: 'opencsv', version: '4.0'
+}
