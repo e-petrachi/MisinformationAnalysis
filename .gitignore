@@ -1,0 +1,16 @@
+.idea/*
+.idea
+.gradle/*
+.gradle
+gradle/*
+gradle
+out/*
+out
+build
+build/*
+gradlew
+gradlew.bat
+.env
+*.properties
+.DS_Store
+*.csv
