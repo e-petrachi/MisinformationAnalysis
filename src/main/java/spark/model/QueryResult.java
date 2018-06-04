@@ -4,16 +4,11 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.bson.Document;
 import org.json.JSONObject;
-import spark.temp.MongoRDDLoader;
 
 import java.io.Serializable;
-import java.math.BigInteger;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
 
 public class QueryResult implements Serializable {
@@ -28,7 +23,7 @@ public class QueryResult implements Serializable {
     public QueryResult(Document doc) {
         JSONObject json = new JSONObject(doc.toJson());
         setId_tweet(json.getJSONObject(Constant.id_tweet));
-        setPostDate(json.getJSONObject(Constant.postDate));
+        setPostDate(json.optJSONObject(Constant.postDate));
         setType_page(json.getString(Constant.type_page));
         //setTweet(json.getJSONObject(Constant.Tweet));
 
@@ -49,15 +44,18 @@ public class QueryResult implements Serializable {
     public void setPostDate(JSONObject postDate) {
         Date date = null;
         try {
-            date = new SimpleDateFormat("MMM d, yyyy HH:mm:ss a", Locale.ENGLISH).parse(postDate.getString(Constant.date));
+            date = new SimpleDateFormat("MMM dd, yyyy HH:mm:ss a", Locale.ENGLISH).parse(postDate.get(Constant.date).toString());
+            LOG.info("8=================================================> ." + date);
         } catch (Exception e1) {
-            LOG.error("DATE_ERROR" + this.id_tweet + "" + e1.getMessage());
+            //LOG.error("DATE_ERROR" + this.id_tweet + "" + e1.getMessage());
             try {
-                date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.ENGLISH).parse(postDate.getString(Constant.date));
+                date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.ENGLISH).parse(postDate.get(Constant.date).toString());
+                LOG.info("8==========================================================> . ." + date);
             } catch (Exception e2){
-                LOG.error("DATE_ERROR" + this.id_tweet + "" + e2.getMessage());
+                //LOG.error("DATE_ERROR" + this.id_tweet + "" + e2.getMessage());
                 try {
-                    date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ", Locale.ENGLISH).parse(postDate.getString(Constant.date));
+                    date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.ENGLISH).parse(postDate.get(Constant.date).toString());
+                    LOG.info("8===============================================================> . . ." + date);
                 } catch (Exception e3){
                     LOG.error("DATE_ERROR" + this.id_tweet + "" + e3.getMessage());
                 }
