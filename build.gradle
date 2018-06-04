@@ -7,7 +7,7 @@ apply plugin: 'idea'
 sourceCompatibility = 1.8
 
 
-task fatJar1(type: Jar) {
+/*task fatJar1(type: Jar) {
     dependsOn configurations.runtime
     from {
         (configurations.runtime - configurations.provided_1).collect {
@@ -22,7 +22,7 @@ task fatJar1(type: Jar) {
     baseName = 'AmazonFoodAnalytic1-all'
     with jar
     zip64 = true
-}
+}*/
 
 task fatJar1s(type: Jar) {
     dependsOn configurations.runtime
@@ -34,9 +34,9 @@ task fatJar1s(type: Jar) {
     manifest {
         attributes  'Implementation-Title': 'Gradle Jar File Example',
                 'Implementation-Version': version,
-                'Main-Class': 'mrspark.job1.AmazonFoodAnalytic'
+                'Main-Class': 'spark.Analysis1'
     }
-    baseName = 'AmazonFoodAnalytic1s-all'
+    baseName = 'Analysis1-all'
     with jar
     zip64 = true
     exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
@@ -57,8 +57,14 @@ configurations {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    provided_2 group: 'org.apache.hadoop', name: 'hadoop-core', version: '1.2.1'
-    provided_1 group: 'org.apache.spark', name: 'spark-core_2.11', version: '2.3.0'
+
     compile group: 'log4j', name: 'log4j', version: '1.2.17'
-    compile group: 'com.opencsv', name: 'opencsv', version: '4.0'
+    //compile group: 'com.opencsv', name: 'opencsv', version: '4.0'
+    compile group: 'org.json', name: 'json', version: '20180130'
+
+    provided_1 group: 'org.apache.spark', name: 'spark-core_2.11', version: '2.3.0'
+    provided_1 group: 'org.mongodb.spark', name: 'mongo-spark-connector_2.11', version: '2.2.2'
+    provided_1 group: 'org.apache.spark', name: 'spark-sql_2.11', version: '2.3.0'
+
+    provided_2 group: 'org.apache.hadoop', name: 'hadoop-core', version: '1.2.1'
 }
