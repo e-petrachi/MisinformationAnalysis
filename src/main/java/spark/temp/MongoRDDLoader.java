@@ -32,7 +32,7 @@ public class MongoRDDLoader {
             return new QueryResult(doc);
         });
 
-        LOG.debug(rdd_qr.count());
+        LOG.debug(rdd_qr.first().toString());
 
         jsc.close();
 

@@ -16,16 +16,18 @@ public class QueryResult implements Serializable {
     private Date postDate;
     private String type_page;
     private Tweet Tweet;
+    private String url_tweet;
 
     private static final Logger LOG = Logger.getLogger(QueryResult.class);
-    static { LOG.setLevel(Level.DEBUG);}
+    static { LOG.setLevel(Level.INFO);}
 
     public QueryResult(Document doc) {
         JSONObject json = new JSONObject(doc.toJson());
         setId_tweet(json.getJSONObject(Constant.id_tweet));
-        setPostDate(json.optJSONObject(Constant.postDate));
+        setPostDate(json.optJSONObject(Constant.postDate),json.optJSONObject(Constant.tweetDate));
         setType_page(json.getString(Constant.type_page));
-        //setTweet(json.getJSONObject(Constant.Tweet));
+        setTweet(json.getJSONObject(Constant.Tweet));
+        setUrl_tweet(json.optString(Constant.url_tweet));
 
     }
 
@@ -41,27 +43,19 @@ public class QueryResult implements Serializable {
         return postDate;
     }
 
-    public void setPostDate(JSONObject postDate) {
+    public void setPostDate(JSONObject postDate, JSONObject tweetDate) {
         Date date = null;
         try {
-            date = new SimpleDateFormat("MMM dd, yyyy HH:mm:ss a", Locale.ENGLISH).parse(postDate.get(Constant.date).toString());
-            LOG.info("8=================================================> ." + date);
-        } catch (Exception e1) {
-            //LOG.error("DATE_ERROR" + this.id_tweet + "" + e1.getMessage());
-            try {
-                date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.ENGLISH).parse(postDate.get(Constant.date).toString());
-                LOG.info("8==========================================================> . ." + date);
-            } catch (Exception e2){
-                //LOG.error("DATE_ERROR" + this.id_tweet + "" + e2.getMessage());
-                try {
-                    date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.ENGLISH).parse(postDate.get(Constant.date).toString());
-                    LOG.info("8===============================================================> . . ." + date);
-                } catch (Exception e3){
-                    LOG.error("DATE_ERROR" + this.id_tweet + "" + e3.getMessage());
-                }
-            }
+            date = new Date(postDate.optLong(Constant.date));
+            LOG.debug("\t\t" + date);
+        } catch (Exception e) {
+            date = new Date(tweetDate.optLong(Constant.date));
+            LOG.debug("\t\t" + date);
         }
-        this.postDate = date;
+        if (date != null)
+            this.postDate = date;
+        else
+            this.postDate = new Date(0L);
     }
 
     public String getType_page() {
@@ -77,7 +71,15 @@ public class QueryResult implements Serializable {
     }
 
     public void setTweet(JSONObject tweet) {
-        //Tweet = new Tweet(tweet);
+        Tweet = new Tweet(tweet);
+    }
+
+    public String getUrl_tweet() {
+        return url_tweet;
+    }
+
+    public void setUrl_tweet(String url_tweet) {
+        this.url_tweet = url_tweet;
     }
 
     @Override
@@ -96,6 +98,7 @@ public class QueryResult implements Serializable {
                 "id_tweet=" + id_tweet +
                 ", postDate=" + postDate +
                 ", type_page='" + type_page + '\'' +
+                ", Tweet=" + Tweet +
                 '}';
     }
 }
