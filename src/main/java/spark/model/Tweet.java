@@ -30,6 +30,19 @@ public class Tweet implements Serializable {
         this.setUser(tweet.optJSONObject(Constant.user));
     }
 
+    public Tweet(JSONObject tweet, String analysis) {
+        switch (analysis) {
+            case "analisi-1": {
+                this.setUser(tweet.optJSONObject(Constant.user),analysis);
+                break;
+            }
+            default: {
+                new Tweet(tweet);
+                break;
+            }
+        }
+    }
+
     public String getText() {
         return text;
     }
@@ -106,6 +119,10 @@ public class Tweet implements Serializable {
 
     public void setUser(JSONObject user) {
         this.user = new User(user,true);
+    }
+
+    public void setUser(JSONObject user, String analysis) {
+        this.user = new User(user,true, analysis);
     }
 
     @Override

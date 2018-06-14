@@ -19,7 +19,7 @@ public class User implements Serializable {
     private int listedCount;
 
     private static final Logger LOG = Logger.getLogger(User.class);
-    static { LOG.setLevel(Level.INFO);}
+    static { LOG.setLevel(Level.DEBUG);}
 
     public User(JSONObject o, boolean complete) {
 
@@ -41,6 +41,28 @@ public class User implements Serializable {
         }
     }
 
+    public User(JSONObject o, boolean complete, String analysis) {
+        switch (analysis) {
+            case "analisi-1": {
+                try {
+                    this.setId(o.getLong(Constant.id));
+                    if (this.getId() == 0L) {
+                        this.setId((long) o.getInt(Constant.id));
+                    }
+                } catch (Exception e){
+                    this.setId(o.optJSONObject(Constant.id).getLong(Constant.numberLong));
+                }
+
+                this.setScreenName(o.getString(Constant.screenName));
+                break;
+            }
+            default: {
+                new User(o,complete);
+                break;
+            }
+        }
+    }
+
     public long getId() {
         return id;
     }
@@ -48,6 +70,7 @@ public class User implements Serializable {
     public void setId(long id) {
         this.id = id;
     }
+
 
     public String getName() {
         return name;

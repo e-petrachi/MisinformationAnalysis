@@ -28,7 +28,21 @@ public class QueryResult implements Serializable {
         setType_page(json.getString(Constant.type_page));
         setTweet(json.getJSONObject(Constant.Tweet));
         setUrl_tweet(json.optString(Constant.url_tweet));
+    }
 
+    public QueryResult(Document doc, String analysis) {
+        JSONObject json = new JSONObject(doc.toJson());
+        switch (analysis) {
+            case "analisi-1": {
+                setType_page(json.getString(Constant.type_page));
+                setTweet(json.getJSONObject(Constant.Tweet),analysis);
+                break;
+            }
+            default: {
+                new QueryResult(doc);
+                break;
+            }
+        }
     }
 
     public long getId_tweet() {
@@ -72,6 +86,10 @@ public class QueryResult implements Serializable {
 
     public void setTweet(JSONObject tweet) {
         Tweet = new Tweet(tweet);
+    }
+
+    public void setTweet(JSONObject tweet, String analysis) {
+        Tweet = new Tweet(tweet,analysis);
     }
 
     public String getUrl_tweet() {
