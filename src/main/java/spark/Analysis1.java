@@ -9,6 +9,7 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.bson.Document;
 import scala.Tuple2;
+import scala.Tuple3;
 import spark.model.QueryResult;
 import spark.temp.MongoRDDLoader;
 
@@ -44,34 +45,40 @@ public class Analysis1 {
                 .mapToPair(a -> new Tuple2<>(a._1()._1(),new Tuple2<>(a._1()._2(),a._2())))
                 .groupByKey();
 
-        JavaPairRDD<Long, Tuple2<String,Integer>> t = s
+        JavaPairRDD<Long, Tuple3<String,Double,Integer>> t = s
                 .mapToPair(a -> {
                     ArrayList<Tuple2<String,Integer>> array = new ArrayList<>();
-                    a._2().forEach( b -> array.add(b));
+                    a._2().forEach( b -> array.add(new Tuple2<>(b._1(),b._2())));
 
                     if (array.size() == 1){
-                        int percent = array.get(0)._1().equalsIgnoreCase("misinformation") ? 100 : 0;
-                        return new Tuple2<>(a._1(),new Tuple2<>("misinformation",percent));
+                        double percent = array.get(0)._1().equalsIgnoreCase("misinformation") ? 100.0 : 0.0;
+                        return new Tuple2<>(a._1(),new Tuple3<>("misinformation", percent, array.get(0)._2() ));
 
                     } else {
-                        int mis_count = 0;
-                        int inf_count = 0;
+                        double mis_count = 0.0;
+                        double inf_count = 0.0;
 
                         if (array.get(0)._1().equalsIgnoreCase("misinformation")) {
-                            mis_count = array.get(0)._2();
-                            inf_count = array.get(1)._2();
+                            mis_count = (double) array.get(0)._2();
+                            inf_count = (double) array.get(1)._2();
                         } else {
-                            mis_count = array.get(1)._2();
-                            inf_count = array.get(0)._2();
+                            mis_count = (double) array.get(1)._2();
+                            inf_count = (double) array.get(0)._2();
                         }
 
-                        return new Tuple2<>(a._1(),new Tuple2<>("misinformation",(int)((double) mis_count/(mis_count+inf_count))*100));
+                        int total = (int) (mis_count + inf_count);
+                        double result = Math.round((mis_count/total)*10000);
+                        return new Tuple2<>(a._1(),new Tuple3<>("misinformation", result/100, total));
                     }
 
                 });
 
         JavaRDD<Document> mongordd = t
-                .map(a -> Document.parse("{'id_user': " + a._1() + ", 'misinformation': " + a._2()._2() + ", 'information':" + (100 - a._2()._2()) + "}"));
+                .map(a -> Document.parse("{'id_user': " + a._1() +
+                        ", 'misinformation': " + a._2()._2() +
+                        ", 'information':" + (100 - a._2()._2()) +
+                        ", 'tweets':" + a._2()._3() +
+                        "}"));
 
         MongoSpark.save(mongordd, WriteConfig.create(jsc));
         //LOG.debug(r.first().toString());
