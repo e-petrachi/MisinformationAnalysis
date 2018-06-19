@@ -44,6 +44,14 @@ public class QueryResult implements Serializable {
                 setTweet(json.getJSONObject(Constant.Tweet),analysis);
                 break;
             }
+            case Constant.hashtagsgroup: {
+                setTweet(json.getJSONObject(Constant.Tweet),analysis);
+                break;
+            }
+            case Constant.mentionsgroup: {
+                setTweet(json.getJSONObject(Constant.Tweet),analysis);
+                break;
+            }
             default: {
                 new QueryResult(doc);
                 break;

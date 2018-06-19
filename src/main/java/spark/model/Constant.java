@@ -38,4 +38,6 @@ public class Constant {
     public static final String polarity = "polarity";
     public static final String fonts = "fonts";
     public static final String socialbot = "socialbot";
+    public static final String hashtagsgroup = "hashtagsgroup";
+    public static final String mentionsgroup = "mentionsgroup";
 }

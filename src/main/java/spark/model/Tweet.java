@@ -49,6 +49,16 @@ public class Tweet implements Serializable {
                 this.setUserMentionEntities(tweet.optJSONArray(Constant.userMentionEntities));
                 break;
             }
+            case Constant.hashtagsgroup: {
+                this.setUser(tweet.optJSONObject(Constant.user),analysis);
+                this.setHashtagEntities(tweet.optJSONArray(Constant.hashtagEntities));
+                break;
+            }
+            case Constant.mentionsgroup: {
+                this.setUser(tweet.optJSONObject(Constant.user),analysis);
+                this.setUserMentionEntities(tweet.optJSONArray(Constant.userMentionEntities));
+                break;
+            }
             default: {
                 new Tweet(tweet);
                 break;

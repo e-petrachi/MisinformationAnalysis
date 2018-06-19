@@ -45,7 +45,9 @@ public class User implements Serializable {
         switch (analysis) {
             case Constant.polarity:
             case Constant.fonts:
-            case Constant.socialbot: {
+            case Constant.socialbot:
+            case Constant.hashtagsgroup:
+            case Constant.mentionsgroup: {
                 try {
                     this.setId(o.getLong(Constant.id));
                     if (this.getId() == 0L) {
