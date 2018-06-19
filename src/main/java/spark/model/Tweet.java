@@ -46,6 +46,7 @@ public class Tweet implements Serializable {
             case Constant.socialbot: {
                 this.setUser(tweet.optJSONObject(Constant.user),analysis);
                 this.setHashtagEntities(tweet.optJSONArray(Constant.hashtagEntities));
+                this.setUserMentionEntities(tweet.optJSONArray(Constant.userMentionEntities));
                 break;
             }
             default: {
