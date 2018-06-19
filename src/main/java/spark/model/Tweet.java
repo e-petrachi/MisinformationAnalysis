@@ -1,7 +1,10 @@
 package spark.model;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import spark.SocialBot;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -18,6 +21,9 @@ public class Tweet implements Serializable {
     private ArrayList<String> hashtagEntities;
     private User user;
 
+    private static final Logger LOG = Logger.getLogger(Tweet.class);
+    static { LOG.setLevel(Level.DEBUG);}
+
     public Tweet(JSONObject tweet) {
         this.setText(tweet.getString(Constant.text));
         this.setSource(tweet.optString(Constant.source));
@@ -32,8 +38,14 @@ public class Tweet implements Serializable {
 
     public Tweet(JSONObject tweet, String analysis) {
         switch (analysis) {
-            case "analisi-1": {
+            case Constant.polarity:
+            case Constant.fonts: {
                 this.setUser(tweet.optJSONObject(Constant.user),analysis);
+                break;
+            }
+            case Constant.socialbot: {
+                this.setUser(tweet.optJSONObject(Constant.user),analysis);
+                this.setHashtagEntities(tweet.optJSONArray(Constant.hashtagEntities));
                 break;
             }
             default: {
@@ -109,7 +121,8 @@ public class Tweet implements Serializable {
     public void setHashtagEntities(JSONArray hashtagEntities) {
         this.hashtagEntities = new ArrayList<>();
         for (int i=0;i<hashtagEntities.length();i++){
-            this.hashtagEntities.add(hashtagEntities.getString(i));
+            this.hashtagEntities.add(hashtagEntities.getJSONObject(i).getString("text").toLowerCase());
+
         }
     }
 

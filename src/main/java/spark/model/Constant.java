@@ -33,4 +33,9 @@ public class Constant {
     public static final String favouritesCount = "favouritesCount";
     public static final String statusesCount = "statusesCount";
     public static final String listedCount = "listedCount";
+
+    //ANALYSIS
+    public static final String polarity = "polarity";
+    public static final String fonts = "fonts";
+    public static final String socialbot = "socialbot";
 }

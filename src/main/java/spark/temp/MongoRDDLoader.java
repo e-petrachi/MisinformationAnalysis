@@ -20,22 +20,23 @@ public class MongoRDDLoader {
     static { LOG.setLevel(Level.DEBUG);}
 
     /*
-    private static final String dbname = "bigdata";
+    private static final String dbname_i = "bigdata";
     private static final String coll_input = "mini";
-    private static final String coll_output = "temp_mini";
     */
     ///*
-    private static final String dbname = "fakenewsnetwork";
+    private static final String dbname_i = "fakenewsnetwork";
     private static final String coll_input = "matteodb";
-    private static final String coll_output = "temp";
     //*/
+
+    private static final String dbname_o = "bigdata";
+    private static final String coll_output = "temp";
 
     public Tuple2<JavaRDD<QueryResult>, JavaSparkContext> openloader(Function<Document, QueryResult> function){
         SparkSession spark = SparkSession.builder()
                 .master("local")
                 .appName("MisinformationAnalysis")
-                .config("spark.mongodb.input.uri", "mongodb://127.0.0.1:27017/" + dbname + "." + coll_input)
-                .config("spark.mongodb.output.uri", "mongodb://127.0.0.1:27017/" + dbname + "." + coll_output)
+                .config("spark.mongodb.input.uri", "mongodb://127.0.0.1:27017/" + dbname_i + "." + coll_input)
+                .config("spark.mongodb.output.uri", "mongodb://127.0.0.1:27017/" + dbname_o + "." + coll_output)
                 .getOrCreate();
 
         JavaSparkContext jsc = new JavaSparkContext(spark.sparkContext());

@@ -10,22 +10,22 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.bson.Document;
 import scala.Tuple2;
 import scala.Tuple3;
+import spark.model.Constant;
 import spark.model.QueryResult;
 import spark.temp.MongoRDDLoader;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class Analysis1 {
+public class Polarity {
 
-    private static final Logger LOG = Logger.getLogger(Analysis1.class);
+    private static final Logger LOG = Logger.getLogger(Polarity.class);
     static { LOG.setLevel(Level.DEBUG);}
 
     public static void main(String[] args){
         MongoRDDLoader ml = new MongoRDDLoader();
 
         Tuple2<JavaRDD<QueryResult>, JavaSparkContext> rdd2jsc =  ml.openloader(doc -> {
-            return new QueryResult(doc,"analisi-1");
+            return new QueryResult(doc, Constant.polarity);
         });
 
         JavaSparkContext jsc = rdd2jsc._2();
@@ -67,8 +67,8 @@ public class Analysis1 {
                         }
 
                         int total = (int) (mis_count + inf_count);
-                        double result = Math.round((mis_count/total)*10000);
-                        return new Tuple2<>(a._1(),new Tuple3<>("misinformation", result/100, total));
+                        double result = Math.round((mis_count/total)*10000.0);
+                        return new Tuple2<>(a._1(),new Tuple3<>("misinformation", result/100.0, total));
                     }
 
                 });
@@ -76,11 +76,11 @@ public class Analysis1 {
         JavaRDD<Document> mongordd = t
                 .map(a -> Document.parse("{'id_user': " + a._1() +
                         ", 'misinformation': " + a._2()._2() +
-                        ", 'information':" + (100 - a._2()._2()) +
+                        ", 'information':" + (100.0 - a._2()._2()) +
                         ", 'tweets':" + a._2()._3() +
                         "}"));
 
-        MongoSpark.save(mongordd, WriteConfig.create(jsc));
+        MongoSpark.save(mongordd, WriteConfig.create(jsc).withOption("collection","polarity"));
         //LOG.debug(r.first().toString());
 
         jsc.close();

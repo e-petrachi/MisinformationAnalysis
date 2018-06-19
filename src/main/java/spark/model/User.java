@@ -43,7 +43,9 @@ public class User implements Serializable {
 
     public User(JSONObject o, boolean complete, String analysis) {
         switch (analysis) {
-            case "analisi-1": {
+            case Constant.polarity:
+            case Constant.fonts:
+            case Constant.socialbot: {
                 try {
                     this.setId(o.getLong(Constant.id));
                     if (this.getId() == 0L) {

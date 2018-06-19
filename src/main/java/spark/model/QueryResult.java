@@ -33,8 +33,14 @@ public class QueryResult implements Serializable {
     public QueryResult(Document doc, String analysis) {
         JSONObject json = new JSONObject(doc.toJson());
         switch (analysis) {
-            case "analisi-1": {
-                setType_page(json.getString(Constant.type_page));
+            case Constant.polarity:
+                case Constant.fonts: {
+                    setType_page(json.getString(Constant.type_page));
+                    setTweet(json.getJSONObject(Constant.Tweet),analysis);
+                    break;
+            }
+            case Constant.socialbot: {
+                setId_tweet(json.getJSONObject(Constant.id_tweet));
                 setTweet(json.getJSONObject(Constant.Tweet),analysis);
                 break;
             }

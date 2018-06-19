@@ -34,9 +34,45 @@ task fatJar1s(type: Jar) {
     manifest {
         attributes  'Implementation-Title': 'Gradle Jar File Example',
                 'Implementation-Version': version,
-                'Main-Class': 'spark.Analysis1'
+                'Main-Class': 'spark.Polarity'
     }
-    baseName = 'Analysis1-all'
+    baseName = 'Polarity-all'
+    with jar
+    zip64 = true
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
+}
+
+task fatJar2s(type: Jar) {
+    dependsOn configurations.runtime
+    from {
+        (configurations.runtime - configurations.provided_2).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    manifest {
+        attributes  'Implementation-Title': 'Gradle Jar File Example',
+                'Implementation-Version': version,
+                'Main-Class': 'spark.Fonts'
+    }
+    baseName = 'Fonts-all'
+    with jar
+    zip64 = true
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
+}
+
+task fatJar3s(type: Jar) {
+    dependsOn configurations.runtime
+    from {
+        (configurations.runtime - configurations.provided_2).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    manifest {
+        attributes  'Implementation-Title': 'Gradle Jar File Example',
+                'Implementation-Version': version,
+                'Main-Class': 'spark.SocialBot'
+    }
+    baseName = 'SocialBot-all'
     with jar
     zip64 = true
     exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
