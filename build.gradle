@@ -7,7 +7,7 @@ apply plugin: 'idea'
 sourceCompatibility = 1.8
 
 
-/*task fatJar1(type: Jar) {
+task fatJar1(type: Jar) {
     dependsOn configurations.runtime
     from {
         (configurations.runtime - configurations.provided_1).collect {
@@ -17,12 +17,12 @@ sourceCompatibility = 1.8
     manifest {
         attributes  'Implementation-Title': 'Gradle Jar File Example',
                 'Implementation-Version': version,
-                'Main-Class': 'mapreduce.job1.AmazonFoodAnalytic'
+                'Main-Class': 'hadoop.analysis.Communities'
     }
-    baseName = 'AmazonFoodAnalytic1-all'
+    baseName = 'Communities-all'
     with jar
     zip64 = true
-}*/
+}
 
 task fatJar1s(type: Jar) {
     dependsOn configurations.runtime
@@ -34,7 +34,7 @@ task fatJar1s(type: Jar) {
     manifest {
         attributes  'Implementation-Title': 'Gradle Jar File Example',
                 'Implementation-Version': version,
-                'Main-Class': 'spark.Polarity'
+                'Main-Class': 'spark.analysis.Polarity'
     }
     baseName = 'Polarity-all'
     with jar
@@ -52,7 +52,7 @@ task fatJar2s(type: Jar) {
     manifest {
         attributes  'Implementation-Title': 'Gradle Jar File Example',
                 'Implementation-Version': version,
-                'Main-Class': 'spark.Fonts'
+                'Main-Class': 'spark.analysis.Fonts'
     }
     baseName = 'Fonts-all'
     with jar
@@ -70,7 +70,7 @@ task fatJar3s(type: Jar) {
     manifest {
         attributes  'Implementation-Title': 'Gradle Jar File Example',
                 'Implementation-Version': version,
-                'Main-Class': 'spark.SocialBot'
+                'Main-Class': 'spark.analysis.SocialBot'
     }
     baseName = 'SocialBot-all'
     with jar
@@ -88,7 +88,7 @@ task fatJar4s(type: Jar) {
     manifest {
         attributes  'Implementation-Title': 'Gradle Jar File Example',
                 'Implementation-Version': version,
-                'Main-Class': 'spark.HashtagsGroup'
+                'Main-Class': 'spark.analysis.HashtagsGroup'
     }
     baseName = 'HashtagsGroup-all'
     with jar
@@ -106,7 +106,7 @@ task fatJar5s(type: Jar) {
     manifest {
         attributes  'Implementation-Title': 'Gradle Jar File Example',
                 'Implementation-Version': version,
-                'Main-Class': 'spark.MentionsGroup'
+                'Main-Class': 'spark.analysis.MentionsGroup'
     }
     baseName = 'MentionsGroup-all'
     with jar
@@ -139,4 +139,6 @@ dependencies {
     provided_1 group: 'org.apache.spark', name: 'spark-sql_2.11', version: '2.3.0'
 
     provided_2 group: 'org.apache.hadoop', name: 'hadoop-core', version: '1.2.1'
+    provided_2 group: 'org.mongodb', name: 'mongo-hadoop-core', version: '1.3.0'
+    provided_2 group: 'org.mongodb', name: 'mongo-java-driver', version: '3.7.1'
 }

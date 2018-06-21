@@ -1,4 +1,4 @@
-package spark;
+package spark.analysis;
 
 import com.mongodb.spark.MongoSpark;
 import com.mongodb.spark.config.WriteConfig;
@@ -9,12 +9,8 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.bson.Document;
 import scala.Tuple2;
-import scala.Tuple3;
 import spark.model.Constant;
 import spark.model.QueryResult;
-import spark.temp.MongoRDDLoader;
-
-import java.util.ArrayList;
 
 public class Fonts {
 

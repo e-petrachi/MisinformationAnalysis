@@ -1,4 +1,4 @@
-package spark;
+package spark.analysis;
 
 import com.mongodb.spark.MongoSpark;
 import com.mongodb.spark.config.WriteConfig;
@@ -12,20 +12,21 @@ import scala.Tuple2;
 import spark.model.Constant;
 import spark.model.QueryResult;
 import spark.model.Tweet;
-import spark.temp.MongoRDDLoader;
+import spark.model.User;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
-public class HashtagsGroup {
+public class MentionsGroup {
 
-    private static final Logger LOG = Logger.getLogger(HashtagsGroup.class);
+    private static final Logger LOG = Logger.getLogger(MentionsGroup.class);
     static { LOG.setLevel(Level.DEBUG);}
 
     public static void main(String[] args){
         MongoRDDLoader ml = new MongoRDDLoader();
 
         Tuple2<JavaRDD<QueryResult>, JavaSparkContext> rdd2jsc =  ml.openloader(doc -> {
-            return new QueryResult(doc, Constant.hashtagsgroup);
+            return new QueryResult(doc, Constant.mentionsgroup);
         });
 
         JavaSparkContext jsc = rdd2jsc._2();
@@ -35,9 +36,10 @@ public class HashtagsGroup {
                 .flatMapToPair(a -> {
                     ArrayList<Tuple2<String,String>> l = new ArrayList<>();
                     Tweet tweet = a.getTweet();
-                    ArrayList<String> hash = tweet.getHashtagEntities();
-                    for (String h: hash){
-                        l.add(new Tuple2<>(h,"'" + tweet.getUser().getScreenName().replaceAll("[^a-zA-Z0-9]","") + "'"));
+                    ArrayList<User> mention = tweet.getUserMentionEntities();
+                    for (User u: mention){
+                        l.add(new Tuple2<>("'" + u.getScreenName().replaceAll("[^a-zA-Z0-9]","") + "'",
+                                "'" + tweet.getUser().getScreenName().replaceAll("[^a-zA-Z0-9]","") + "'"));
                     }
                     return l.iterator();
                 }).distinct();
@@ -45,12 +47,18 @@ public class HashtagsGroup {
         JavaPairRDD<String, Iterable<String>> s = r
                 .groupByKey();
 
-        JavaRDD<Document> mongordd = s
-                .map(a -> Document.parse("{'hashtag': '" + a._1() +
-                        "', 'users': " + a._2() +
+        JavaPairRDD<Integer, Tuple2<String,Iterable<String>>> c = s
+                .mapToPair(a -> new Tuple2<>(((Collection<String>) a._2()).size(),new Tuple2<>(a._1(),a._2())))
+                .sortByKey(false)
+                .filter( a -> a._1() > 5);
+
+        JavaRDD<Document> mongordd = c
+                .map(a -> Document.parse("{'mention': " + a._2()._1() +
+                        ", 'size': " + a._1() +
+                        ", 'users': " + a._2()._2() +
                         "}"));
 
-        MongoSpark.save(mongordd, WriteConfig.create(jsc).withOption("collection","hashtagsgroup"));
+        MongoSpark.save(mongordd, WriteConfig.create(jsc).withOption("collection","mentionsgroup"));
 
         jsc.close();
 

@@ -1,4 +1,4 @@
-package spark;
+package spark.analysis;
 
 import com.mongodb.spark.MongoSpark;
 import com.mongodb.spark.config.WriteConfig;
@@ -12,7 +12,6 @@ import scala.Tuple2;
 import scala.Tuple3;
 import spark.model.Constant;
 import spark.model.QueryResult;
-import spark.temp.MongoRDDLoader;
 
 import java.util.ArrayList;
 
@@ -31,21 +30,26 @@ public class Polarity {
         JavaSparkContext jsc = rdd2jsc._2();
         JavaRDD<QueryResult> rdd = rdd2jsc._1();
 
-        JavaPairRDD<Tuple2<Long,String>,Integer> r = rdd
-                .mapToPair(a -> new Tuple2<>(new Tuple2<>(a.getTweet().getUser().getId(),a.getType_page()),1))
+        // < user, type , friends/followers > + counter
+        JavaPairRDD<Tuple3<String,String,Double>,Integer> r = rdd
+                .mapToPair(a -> new Tuple2<>(
+                        new Tuple3<>(
+                                "'" + a.getTweet().getUser().getScreenName().replaceAll("[^a-zA-Z0-9]","") + "'",
+                                a.getType_page(),
+                                Math.round((double)a.getTweet().getUser().getFriendsCount()/(double)a.getTweet().getUser().getFollowersCount()*100.0)/100.0
+                        ),1))
                 .reduceByKey( (a,b) -> a + b)
                 .mapToPair(a -> new Tuple2<>(a._2(),a._1()))
                 .sortByKey()
                 .mapToPair(a -> new Tuple2<>(a._2(),a._1()));
 
-        //JavaRDD<Document> mongordd = r.map(a -> Document.parse("{'id_user': " + a._1()._1() + ", 'type': '" + a._1()._2().toString().toLowerCase() + "', 'counter': " + a._2() + "}"));
-
-
-        JavaPairRDD<Long, Iterable<Tuple2<String,Integer>>> s = r
-                .mapToPair(a -> new Tuple2<>(a._1()._1(),new Tuple2<>(a._1()._2(),a._2())))
+        // < user, friends/followers > + <[type , counter]>
+        JavaPairRDD<Tuple2<String,Double>, Iterable<Tuple2<String,Integer>>> s = r
+                .mapToPair(a -> new Tuple2<>(new Tuple2<>(a._1()._1(),a._1()._3()),new Tuple2<>(a._1()._2(),a._2())))
                 .groupByKey();
 
-        JavaPairRDD<Long, Tuple3<String,Double,Integer>> t = s
+        // < user, friends/followers > + <type , percentage, counter>
+        JavaPairRDD<Tuple2<String,Double>, Tuple3<String,Double,Integer>> t = s
                 .mapToPair(a -> {
                     ArrayList<Tuple2<String,Integer>> array = new ArrayList<>();
                     a._2().forEach( b -> array.add(new Tuple2<>(b._1(),b._2())));
@@ -71,17 +75,17 @@ public class Polarity {
                         return new Tuple2<>(a._1(),new Tuple3<>("misinformation", result/100.0, total));
                     }
 
-                });
+                }).filter( a -> a._2()._3() > 5);
 
         JavaRDD<Document> mongordd = t
-                .map(a -> Document.parse("{'id_user': " + a._1() +
+                .map(a -> Document.parse("{'user': " + a._1()._1() +
                         ", 'misinformation': " + a._2()._2() +
                         ", 'information':" + (100.0 - a._2()._2()) +
                         ", 'tweets':" + a._2()._3() +
+                        ", 'friends/followers':" + a._1()._2() +
                         "}"));
 
         MongoSpark.save(mongordd, WriteConfig.create(jsc).withOption("collection","polarity"));
-        //LOG.debug(r.first().toString());
 
         jsc.close();
 

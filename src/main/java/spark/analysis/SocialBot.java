@@ -1,4 +1,4 @@
-package spark;
+package spark.analysis;
 
 import com.mongodb.spark.MongoSpark;
 import com.mongodb.spark.config.WriteConfig;
@@ -14,7 +14,6 @@ import spark.model.Constant;
 import spark.model.QueryResult;
 import spark.model.Tweet;
 import spark.model.User;
-import spark.temp.MongoRDDLoader;
 
 import java.util.ArrayList;
 

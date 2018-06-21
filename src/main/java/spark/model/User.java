@@ -25,6 +25,9 @@ public class User implements Serializable {
 
         try {
             this.setId(o.optLong(Constant.id));
+            if (this.getId() == 0L) {
+                this.setId((long) o.getInt(Constant.id));
+            }
         } catch (Exception e){
             this.setId(o.optJSONObject(Constant.id).getLong(Constant.numberLong));
         }
@@ -43,7 +46,21 @@ public class User implements Serializable {
 
     public User(JSONObject o, boolean complete, String analysis) {
         switch (analysis) {
-            case Constant.polarity:
+            case Constant.polarity:{
+                try {
+                    this.setId(o.getLong(Constant.id));
+                    if (this.getId() == 0L) {
+                        this.setId((long) o.getInt(Constant.id));
+                    }
+                } catch (Exception e){
+                    this.setId(o.optJSONObject(Constant.id).getLong(Constant.numberLong));
+                }
+
+                this.setScreenName(o.getString(Constant.screenName));
+                this.setFollowersCount(o.getInt(Constant.followersCount));
+                this.setFriendsCount(o.getInt(Constant.friendsCount));
+                break;
+            }
             case Constant.fonts:
             case Constant.socialbot:
             case Constant.hashtagsgroup:
