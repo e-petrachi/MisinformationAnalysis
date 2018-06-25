@@ -12,7 +12,7 @@ import scala.Tuple2;
 import spark.model.Constant;
 import spark.model.QueryResult;
 
-public class Fonts {
+public class AllInOne {
 
     private static final Logger LOG = Logger.getLogger(Fonts.class);
     static { LOG.setLevel(Level.DEBUG);}
@@ -24,31 +24,18 @@ public class Fonts {
         });
     }
 
-    public static void execute(JavaRDD<QueryResult> rdd, JavaSparkContext jsc) {
-        JavaPairRDD<String,Long> r = rdd
-                .mapToPair(a -> new Tuple2<>(a.getType_page(),a.getTweet().getUser().getId()))
-                .distinct();
-
-        JavaPairRDD<String, Iterable<Long>> s = r
-                .groupByKey();
-
-        JavaRDD<Document> mongordd = s
-                .map(a -> Document.parse("{'font': '" + (a._1().equalsIgnoreCase("misinformation") ? a._1() : "information") +
-                        "', 'users': " + a._2() +
-                        "}"));
-
-        MongoSpark.save(mongordd, WriteConfig.create(jsc).withOption("collection","fonts"));
-    }
-
     public static void main(String[] args){
         Tuple2<JavaRDD<QueryResult>, JavaSparkContext> rdd2jsc = loadDocument();
 
         JavaSparkContext jsc = rdd2jsc._2();
         JavaRDD<QueryResult> rdd = rdd2jsc._1();
 
-        execute(rdd, jsc);
+        Polarity.execute(rdd, jsc);
+        Fonts.execute(rdd, jsc);
+        SocialBot.execute(rdd, jsc);
+        HashtagsGroup.execute(rdd, jsc);
+        MentionsGroup.execute(rdd, jsc);
 
         jsc.close();
-
     }
 }

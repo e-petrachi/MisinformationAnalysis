@@ -22,16 +22,14 @@ public class SocialBot {
     private static final Logger LOG = Logger.getLogger(SocialBot.class);
     static { LOG.setLevel(Level.DEBUG);}
 
-    public static void main(String[] args){
+    public static Tuple2<JavaRDD<QueryResult>, JavaSparkContext> loadDocument() {
         MongoRDDLoader ml = new MongoRDDLoader();
-
-        Tuple2<JavaRDD<QueryResult>, JavaSparkContext> rdd2jsc =  ml.openloader(doc -> {
-            return new QueryResult(doc, Constant.socialbot);
+        return ml.openloader(doc -> {
+            return new QueryResult(doc, Constant.fonts);
         });
+    }
 
-        JavaSparkContext jsc = rdd2jsc._2();
-        JavaRDD<QueryResult> rdd = rdd2jsc._1();
-
+    public static void execute(JavaRDD<QueryResult> rdd, JavaSparkContext jsc) {
         // id_user + <mention,counter>
         JavaPairRDD<Long,Tuple2<Long,Double>> m = rdd
                 .flatMapToPair(a -> {
@@ -80,7 +78,7 @@ public class SocialBot {
                 .mapToPair( a -> {
                     double p = Math.round(a._2()._2()*10000.0)/100.0;
                     return new Tuple2<>(new Tuple2<>(a._1(),a._2()._3()),
-                        "{'hashtag': '" + a._2()._1() + "','percentage': '" + p + "'}");
+                            "{'hashtag': '" + a._2()._1() + "','percentage': '" + p + "'}");
                 })
                 .groupByKey();
 
@@ -101,12 +99,21 @@ public class SocialBot {
         JavaRDD<Document> mongordd = rms
                 .map(a -> Document.parse(
                         "{ 'id_user': " + a._1()._1() +
-                        ", 'tweets_count': " + a._1()._2() +
-                        ", 'hashtags': " + a._2()._1() +
+                                ", 'tweets_count': " + a._1()._2() +
+                                ", 'hashtags': " + a._2()._1() +
                                 ", 'mentions': " + a._2()._2() +
-                        "}"));
+                                "}"));
 
         MongoSpark.save(mongordd, WriteConfig.create(jsc).withOption("collection","socialbot"));
+    }
+
+    public static void main(String[] args){
+        Tuple2<JavaRDD<QueryResult>, JavaSparkContext> rdd2jsc = loadDocument();
+
+        JavaSparkContext jsc = rdd2jsc._2();
+        JavaRDD<QueryResult> rdd = rdd2jsc._1();
+
+        execute(rdd, jsc);
         
         jsc.close();
 

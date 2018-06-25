@@ -19,13 +19,13 @@ public class MongoRDDLoader {
     private static final Logger LOG = Logger.getLogger(MongoRDDLoader.class);
     static { LOG.setLevel(Level.DEBUG);}
 
-    /*
+    ///*
     private static final String dbname_i = "bigdata";
     private static final String coll_input = "mini";
-    */
+    //*/
     ///*
-    private static final String dbname_i = "fakenewsnetwork";
-    private static final String coll_input = "matteodb";
+    //private static final String dbname_i = "fakenewsnetwork";
+    //private static final String coll_input = "matteodb";
     //*/
 
     private static final String dbname_o = "bigdata";

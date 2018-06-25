@@ -20,16 +20,14 @@ public class Polarity {
     private static final Logger LOG = Logger.getLogger(Polarity.class);
     static { LOG.setLevel(Level.DEBUG);}
 
-    public static void main(String[] args){
+    public static Tuple2<JavaRDD<QueryResult>, JavaSparkContext> loadDocument() {
         MongoRDDLoader ml = new MongoRDDLoader();
-
-        Tuple2<JavaRDD<QueryResult>, JavaSparkContext> rdd2jsc =  ml.openloader(doc -> {
-            return new QueryResult(doc, Constant.polarity);
+        return ml.openloader(doc -> {
+            return new QueryResult(doc, Constant.fonts);
         });
+    }
 
-        JavaSparkContext jsc = rdd2jsc._2();
-        JavaRDD<QueryResult> rdd = rdd2jsc._1();
-
+    public static void execute(JavaRDD<QueryResult> rdd, JavaSparkContext jsc) {
         // < user, type , friends/followers > + counter
         JavaPairRDD<Tuple3<String,String,Double>,Integer> r = rdd
                 .mapToPair(a -> new Tuple2<>(
@@ -86,6 +84,15 @@ public class Polarity {
                         "}"));
 
         MongoSpark.save(mongordd, WriteConfig.create(jsc).withOption("collection","polarity"));
+    }
+
+    public static void main(String[] args){
+        Tuple2<JavaRDD<QueryResult>, JavaSparkContext> rdd2jsc = loadDocument();
+
+        JavaSparkContext jsc = rdd2jsc._2();
+        JavaRDD<QueryResult> rdd = rdd2jsc._1();
+
+        execute(rdd, jsc);
 
         jsc.close();
 

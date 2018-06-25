@@ -22,16 +22,14 @@ public class MentionsGroup {
     private static final Logger LOG = Logger.getLogger(MentionsGroup.class);
     static { LOG.setLevel(Level.DEBUG);}
 
-    public static void main(String[] args){
+    public static Tuple2<JavaRDD<QueryResult>, JavaSparkContext> loadDocument() {
         MongoRDDLoader ml = new MongoRDDLoader();
-
-        Tuple2<JavaRDD<QueryResult>, JavaSparkContext> rdd2jsc =  ml.openloader(doc -> {
-            return new QueryResult(doc, Constant.mentionsgroup);
+        return ml.openloader(doc -> {
+            return new QueryResult(doc, Constant.fonts);
         });
+    }
 
-        JavaSparkContext jsc = rdd2jsc._2();
-        JavaRDD<QueryResult> rdd = rdd2jsc._1();
-
+    public static void execute(JavaRDD<QueryResult> rdd, JavaSparkContext jsc) {
         JavaPairRDD<String,String> r = rdd
                 .flatMapToPair(a -> {
                     ArrayList<Tuple2<String,String>> l = new ArrayList<>();
@@ -59,6 +57,15 @@ public class MentionsGroup {
                         "}"));
 
         MongoSpark.save(mongordd, WriteConfig.create(jsc).withOption("collection","mentionsgroup"));
+    }
+
+    public static void main(String[] args){
+        Tuple2<JavaRDD<QueryResult>, JavaSparkContext> rdd2jsc = loadDocument();
+
+        JavaSparkContext jsc = rdd2jsc._2();
+        JavaRDD<QueryResult> rdd = rdd2jsc._1();
+
+        execute(rdd, jsc);
 
         jsc.close();
 
