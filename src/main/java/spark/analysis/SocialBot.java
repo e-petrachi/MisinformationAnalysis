@@ -25,7 +25,7 @@ public class SocialBot {
     public static Tuple2<JavaRDD<QueryResult>, JavaSparkContext> loadDocument() {
         MongoRDDLoader ml = new MongoRDDLoader();
         return ml.openloader(doc -> {
-            return new QueryResult(doc, Constant.fonts);
+            return new QueryResult(doc, Constant.socialbot);
         });
     }
 

@@ -21,7 +21,8 @@ public class MongoRDDLoader {
 
     ///*
     private static final String dbname_i = "bigdata";
-    private static final String coll_input = "mini";
+    //private static final String coll_input = "mini";
+    private static final String coll_input = "dataset";
     //*/
     ///*
     //private static final String dbname_i = "fakenewsnetwork";
@@ -46,5 +47,20 @@ public class MongoRDDLoader {
         JavaRDD<QueryResult> rdd_qr = rdd.map(function);
 
         return new Tuple2<>(rdd_qr,jsc);
+    }
+
+    public Tuple2<JavaMongoRDD<Document>, JavaSparkContext> openloaderDocument(){
+        SparkSession spark = SparkSession.builder()
+                .master("local")
+                .appName("MisinformationAnalysis")
+                .config("spark.mongodb.input.uri", "mongodb://127.0.0.1:27017/" + dbname_i + "." + coll_input)
+                .config("spark.mongodb.output.uri", "mongodb://127.0.0.1:27017/" + dbname_o + "." + coll_output)
+                .getOrCreate();
+
+        JavaSparkContext jsc = new JavaSparkContext(spark.sparkContext());
+
+        JavaMongoRDD<Document> rdd = MongoSpark.load(jsc);
+
+        return new Tuple2<>(rdd, jsc);
     }
 }
