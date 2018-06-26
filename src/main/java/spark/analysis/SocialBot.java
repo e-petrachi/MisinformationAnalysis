@@ -14,6 +14,7 @@ import spark.model.Constant;
 import spark.model.QueryResult;
 import spark.model.Tweet;
 import spark.model.User;
+import spark.utilities.MongoRDDLoader;
 
 import java.util.ArrayList;
 
@@ -23,7 +24,7 @@ public class SocialBot {
     static { LOG.setLevel(Level.DEBUG);}
 
     public static Tuple2<JavaRDD<QueryResult>, JavaSparkContext> loadDocument() {
-        MongoRDDLoader ml = new MongoRDDLoader();
+        MongoRDDLoader ml = new MongoRDDLoader("fakenewsnetwork","matteodb","bigdata","socialbot");
         return ml.openloader(doc -> {
             return new QueryResult(doc, Constant.socialbot);
         });
@@ -104,7 +105,7 @@ public class SocialBot {
                                 ", 'mentions': " + a._2()._2() +
                                 "}"));
 
-        MongoSpark.save(mongordd, WriteConfig.create(jsc).withOption("collection","socialbot"));
+        MongoSpark.save(mongordd, WriteConfig.create(jsc));
     }
 
     public static void main(String[] args){

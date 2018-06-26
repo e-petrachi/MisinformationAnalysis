@@ -12,6 +12,7 @@ import scala.Tuple2;
 import spark.model.Constant;
 import spark.model.QueryResult;
 import spark.model.Tweet;
+import spark.utilities.MongoRDDLoader;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,7 +23,7 @@ public class HashtagsGroup {
     static { LOG.setLevel(Level.DEBUG);}
 
     public static Tuple2<JavaRDD<QueryResult>, JavaSparkContext> loadDocument() {
-        MongoRDDLoader ml = new MongoRDDLoader();
+        MongoRDDLoader ml = new MongoRDDLoader("fakenewsnetwork","matteodb","bigdata","hashtagsgroup");
         return ml.openloader(doc -> {
             return new QueryResult(doc, Constant.hashtagsgroup);
         });
@@ -54,7 +55,7 @@ public class HashtagsGroup {
                         " , 'users': " + a._2()._2() +
                         "}"));
 
-        MongoSpark.save(mongordd, WriteConfig.create(jsc).withOption("collection","hashtagsgroup"));
+        MongoSpark.save(mongordd, WriteConfig.create(jsc));
     }
 
     public static void main(String[] args){

@@ -3,15 +3,15 @@ package hadoop.analysis;
 import com.mongodb.hadoop.*;
 import com.mongodb.hadoop.util.MongoConfigUtil;
 import com.mongodb.hadoop.util.MongoTool;
-import hadoop.model.StringArrayWritable;
+import hadoop.model.TextArrayWritable;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.ArrayWritable;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
-import org.bson.BSONObject;
 
 public class Communities extends MongoTool {
 
@@ -23,7 +23,7 @@ public class Communities extends MongoTool {
         JobConf conf = new JobConf(new Configuration());
 
         MongoConfigUtil.setInputFormat(conf, MongoInputFormat.class);
-        MongoConfigUtil.setOutputFormat(conf, MongoOutputFormat.class);
+        //MongoConfigUtil.setOutputFormat(conf, MongoOutputFormat.class);
 
         MongoConfig config = new MongoConfig(conf);
 
@@ -33,12 +33,14 @@ public class Communities extends MongoTool {
         config.setReducer(CommunitiesReducer.class);
 
         config.setMapperOutputKey(Text.class);
-        config.setMapperOutputValue(StringArrayWritable.class);
+        config.setMapperOutputValue(TextArrayWritable.class);
 
         config.setOutputKey(Text.class);
         config.setOutputValue(IntWritable.class);
 
-        config.setOutputURI("mongodb://localhost:27017/bigdata.communities");
+        //config.setOutputURI("mongodb://localhost:27017/bigdata.communities");
+        FileOutputFormat.setOutputPath(conf, new Path("output/result"));
+
         setConf(conf);
 
         LOG.info("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0 + " seconds");

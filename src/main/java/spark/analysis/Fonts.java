@@ -11,6 +11,7 @@ import org.bson.Document;
 import scala.Tuple2;
 import spark.model.Constant;
 import spark.model.QueryResult;
+import spark.utilities.MongoRDDLoader;
 
 public class Fonts {
 
@@ -18,7 +19,7 @@ public class Fonts {
     static { LOG.setLevel(Level.DEBUG);}
 
     public static Tuple2<JavaRDD<QueryResult>, JavaSparkContext> loadDocument() {
-        MongoRDDLoader ml = new MongoRDDLoader();
+        MongoRDDLoader ml = new MongoRDDLoader("fakenewsnetwork","matteodb","bigdata","fonts");
         return ml.openloader(doc -> {
             return new QueryResult(doc, Constant.fonts);
         });
@@ -37,7 +38,7 @@ public class Fonts {
                         "', 'users': " + a._2() +
                         "}"));
 
-        MongoSpark.save(mongordd, WriteConfig.create(jsc).withOption("collection","fonts"));
+        MongoSpark.save(mongordd, WriteConfig.create(jsc));
     }
 
     public static void main(String[] args){

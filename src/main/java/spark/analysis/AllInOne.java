@@ -1,21 +1,19 @@
 package spark.analysis;
 
-import com.mongodb.spark.MongoSpark;
 import com.mongodb.spark.rdd.api.java.JavaMongoRDD;
-import com.mongodb.spark.config.WriteConfig;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.bson.Document;
 import scala.Tuple2;
 import spark.model.Constant;
 import spark.model.QueryResult;
+import spark.utilities.MongoRDDLoader;
 
 public class AllInOne {
 
-    private static final Logger LOG = Logger.getLogger(Fonts.class);
+    private static final Logger LOG = Logger.getLogger(AllInOne.class);
     static { LOG.setLevel(Level.DEBUG);}
 
     public static Tuple2<JavaMongoRDD<Document>, JavaSparkContext> loadDocument() {

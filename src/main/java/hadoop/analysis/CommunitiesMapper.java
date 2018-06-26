@@ -1,9 +1,7 @@
 package hadoop.analysis;
 
-import hadoop.model.StringArrayWritable;
+import hadoop.model.TextArrayWritable;
 import org.apache.hadoop.io.ArrayWritable;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.log4j.Level;
@@ -12,12 +10,11 @@ import org.bson.BSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 
 public class CommunitiesMapper extends Mapper<Object, BSONObject, Text, ArrayWritable> {
 
     private Text chiave;
-    private StringArrayWritable valore;
+    private TextArrayWritable valore;
 
     private static final Logger LOG = Logger.getLogger(CommunitiesMapper.class);
     static { LOG.setLevel(Level.INFO);}
@@ -30,7 +27,7 @@ public class CommunitiesMapper extends Mapper<Object, BSONObject, Text, ArrayWri
         String[] out = valOut.toArray(new String[valOut.size()]);
 
         this.chiave = new Text(keyOut);
-        this.valore = new StringArrayWritable(out);
+        this.valore = new TextArrayWritable(out);
 
         context.write(this.chiave, this.valore);
 

@@ -132,6 +132,24 @@ task fatJar5s(type: Jar) {
     exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
 }
 
+task fatJar6s(type: Jar) {
+    dependsOn configurations.runtime
+    from {
+        (configurations.runtime - configurations.provided_2).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    manifest {
+        attributes  'Implementation-Title': 'Gradle Jar File Example',
+                'Implementation-Version': version,
+                'Main-Class': 'spark.post_analysis.Communities'
+    }
+    baseName = 'Communities-all'
+    with jar
+    zip64 = true
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
+}
+
 
 repositories {
     mavenCentral()
