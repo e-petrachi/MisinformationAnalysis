@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class MentionsGroup implements Serializable {
 
@@ -41,6 +42,10 @@ public class MentionsGroup implements Serializable {
         return users;
     }
 
+    public HashSet<String> getUsersSet() {
+        return new HashSet<String>(users);
+    }
+
     public void setUsers(ArrayList<String> users) {
         this.users = users;
     }
@@ -48,7 +53,7 @@ public class MentionsGroup implements Serializable {
     public void setUsers(JSONArray users) {
         this.users = new ArrayList<>();
         for (int i=0;i<users.length();i++){
-            this.users.add(users.getString(i));
+            this.users.add("'" + users.getString(i) + "'");
         }
     }
 }

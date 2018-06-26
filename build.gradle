@@ -142,9 +142,9 @@ task fatJar6s(type: Jar) {
     manifest {
         attributes  'Implementation-Title': 'Gradle Jar File Example',
                 'Implementation-Version': version,
-                'Main-Class': 'spark.post_analysis.Communities'
+                'Main-Class': 'spark.post_analysis.CommunitiesHashtag'
     }
-    baseName = 'Communities-all'
+    baseName = 'CommunitiesHashtag-all'
     with jar
     zip64 = true
     exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
@@ -167,7 +167,6 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
     compile group: 'log4j', name: 'log4j', version: '1.2.17'
-    //compile group: 'com.opencsv', name: 'opencsv', version: '4.0'
     compile group: 'org.json', name: 'json', version: '20180130'
 
     provided_1 group: 'org.apache.spark', name: 'spark-core_2.11', version: '2.3.0'
@@ -176,5 +175,11 @@ dependencies {
 
     provided_2 group: 'org.apache.hadoop', name: 'hadoop-core', version: '1.2.1'
     provided_2 group: 'org.mongodb', name: 'mongo-hadoop-core', version: '1.3.0'
+
     compile group: 'org.mongodb', name: 'mongo-java-driver', version: '3.7.1'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '+'
+    compile 'de.undercouch:bson4jackson:+'
+    compile group: 'org.jongo', name: 'jongo', version: '+'
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.2'
 }
