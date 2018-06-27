@@ -16,6 +16,12 @@ import spark.utilities.MongoRDDLoader;
 
 import java.util.ArrayList;
 
+/**
+ * Polarità degli utenti con le relative percentuali e quantità di tweet per ognuno di essi +
+ * Identificazione di utenti fonte di misinformation in funzione del rapporto friends/followers
+ * (valori bassi rispetto alla media indicano probabili fonti)
+ */
+
 public class Polarity {
 
     private static final Logger LOG = Logger.getLogger(Polarity.class);

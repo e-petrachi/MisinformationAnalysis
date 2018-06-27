@@ -18,6 +18,14 @@ import spark.utilities.MongoRDDLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 
+/**
+ * Gruppi di utenti che hanno utilizzato le stesse mention
+ * (utili ad identificare comunità di diffusione automatica di misinformation)
+ *
+ *
+ * Filtro gruppi di cui ho almeno 6 mention
+ */
+
 public class MentionsGroup {
 
     private static final Logger LOG = Logger.getLogger(MentionsGroup.class);

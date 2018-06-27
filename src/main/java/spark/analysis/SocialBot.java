@@ -18,6 +18,13 @@ import spark.utilities.MongoRDDLoader;
 
 import java.util.ArrayList;
 
+/**
+ * Riuso degli stessi hashtag/mention per utente
+ * (utili per identificare eventuali social bot)
+ *
+ * Filtro utenti di cui ho almeno 6 tweet
+ */
+
 public class SocialBot {
 
     private static final Logger LOG = Logger.getLogger(SocialBot.class);
@@ -31,51 +38,55 @@ public class SocialBot {
     }
 
     public static void execute(JavaRDD<QueryResult> rdd, JavaSparkContext jsc) {
-        // id_user + <mention,counter>
-        JavaPairRDD<Long,Tuple2<Long,Double>> m = rdd
+        // user + <mention,counter>
+        JavaPairRDD<String,Tuple2<String,Double>> m = rdd
                 .flatMapToPair(a -> {
-                    ArrayList<Tuple2<Tuple2<Long,Long>,Double>> l = new ArrayList<>();
+                    ArrayList<Tuple2<Tuple2<String,String>,Double>> l = new ArrayList<>();
                     Tweet tweet = a.getTweet();
                     ArrayList<User> mention = tweet.getUserMentionEntities();
                     for (User u: mention){
-                        l.add(new Tuple2<>(new Tuple2<>(tweet.getUser().getId(),u.getId()),1.0));
+                        l.add(new Tuple2<>(
+                                new Tuple2<>("'" + tweet.getUser().getScreenName().replaceAll("[^a-zA-Z0-9]","") + "'",
+                                        "'" + u.getScreenName().replaceAll("[^a-zA-Z0-9]","") + "'"),
+                                1.0));
                     }
                     return l.iterator();
                 }).reduceByKey( (a,b) -> a + b )
                 .mapToPair(a -> new Tuple2<>(a._1()._1(),new Tuple2<>(a._1()._2(),a._2())));
 
-        // id_user + <hashtag,counter>
-        JavaPairRDD<Long,Tuple2<String,Double>> r = rdd
+        // user + <hashtag,counter>
+        JavaPairRDD<String,Tuple2<String,Double>> r = rdd
                 .flatMapToPair(a -> {
-                    ArrayList<Tuple2<Tuple2<Long,String>,Double>> l = new ArrayList<>();
+                    ArrayList<Tuple2<Tuple2<String,String>,Double>> l = new ArrayList<>();
                     Tweet tweet = a.getTweet();
                     ArrayList<String> hash = tweet.getHashtagEntities();
                     for (String h: hash){
-                        l.add(new Tuple2<>(new Tuple2<>(tweet.getUser().getId(),h),1.0));
+                        l.add(new Tuple2<>(new Tuple2<>("'" + tweet.getUser().getScreenName().replaceAll("[^a-zA-Z0-9]","") + "'",h),1.0));
                     }
                     return l.iterator();
                 }).reduceByKey( (a,b) -> a + b )
                 .mapToPair(a -> new Tuple2<>(a._1()._1(),new Tuple2<>(a._1()._2(),a._2())));
 
-        // id_user + tweets_counter
-        JavaPairRDD<Long,Double> s = rdd
-                .mapToPair( a -> new Tuple2<>(a.getTweet().getUser().getId(),1.0))
-                .reduceByKey( (a,b) -> a + b );
+        // user + tweets_counter
+        JavaPairRDD<String,Double> s = rdd
+                .mapToPair( a -> new Tuple2<>("'" + a.getTweet().getUser().getScreenName().replaceAll("[^a-zA-Z0-9]","") + "'",1.0))
+                .reduceByKey( (a,b) -> a + b )
+                .filter( a -> a._2() > 5.0);
 
-        // id_user + <hashtag,counter,tweets_counter>
-        JavaPairRDD<Long,Tuple3<String,Double,Double>> rs = r
+        // user + <hashtag,counter,tweets_counter>
+        JavaPairRDD<String,Tuple3<String,Double,Double>> rs = r
                 .join(s)
                 .mapToPair( a -> new Tuple2<>(a._1(),new Tuple3<>(a._2()._1()._1(), a._2()._1()._2() / a._2()._2(), a._2()._2())));
 
-        // id_user + <mention,counter,tweets_counter>
-        JavaPairRDD<Long,Tuple3<Long,Double,Double>> ms = m
+        // user + <mention,counter,tweets_counter>
+        JavaPairRDD<String,Tuple3<String,Double,Double>> ms = m
                 .join(s)
                 .mapToPair( a -> new Tuple2<>(a._1(),new Tuple3<>(a._2()._1()._1(), a._2()._1()._2() / a._2()._2(), a._2()._2())));
 
 
 
-        // <id_user,tweets_counter>,[<hashtag,percentage>,<hashtag,percentage>,..]
-        JavaPairRDD<Tuple2<Long,Double>,Iterable<String>> t1 = rs
+        // <user,tweets_counter>,[<hashtag,percentage>,<hashtag,percentage>,..]
+        JavaPairRDD<Tuple2<String,Double>,Iterable<String>> t1 = rs
                 .mapToPair( a -> {
                     double p = Math.round(a._2()._2()*10000.0)/100.0;
                     return new Tuple2<>(new Tuple2<>(a._1(),a._2()._3()),
@@ -83,23 +94,23 @@ public class SocialBot {
                 })
                 .groupByKey();
 
-        // <id_user,tweets_counter>,[<mention,percentage>,<mention,percentage>,..]
-        JavaPairRDD<Tuple2<Long,Double>,Iterable<String>> t2 = ms
+        // <user,tweets_counter>,[<mention,percentage>,<mention,percentage>,..]
+        JavaPairRDD<Tuple2<String,Double>,Iterable<String>> t2 = ms
                 .mapToPair( a -> {
                     double p = Math.round(a._2()._2()*10000.0)/100.0;
                     return new Tuple2<>(new Tuple2<>(a._1(),a._2()._3()),
-                            "{'mention': '" + a._2()._1() + "','percentage': '" + p + "'}");
+                            "{'mention': " + a._2()._1() + ",'percentage': '" + p + "'}");
                 })
                 .groupByKey();
 
-        // <id_user,tweets_counter> + <[<hashtag,counter>],[<mention,counter>]>
-        JavaPairRDD<Tuple2<Long,Double>,Tuple2<Iterable<String>,Iterable<String>>> rms = t1
+        // <user,tweets_counter> + <[<hashtag,counter>],[<mention,counter>]>
+        JavaPairRDD<Tuple2<String,Double>,Tuple2<Iterable<String>,Iterable<String>>> rms = t1
                 .join(t2);
 
 
         JavaRDD<Document> mongordd = rms
                 .map(a -> Document.parse(
-                        "{ 'id_user': " + a._1()._1() +
+                        "{ 'user': " + a._1()._1() +
                                 ", 'tweets_count': " + a._1()._2() +
                                 ", 'hashtags': " + a._2()._1() +
                                 ", 'mentions': " + a._2()._2() +

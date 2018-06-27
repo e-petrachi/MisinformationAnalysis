@@ -13,6 +13,10 @@ import spark.model.Constant;
 import spark.model.QueryResult;
 import spark.utilities.MongoRDDLoader;
 
+/**
+ * Quali e quanti utenti hanno condiviso contenuti provenienti da fonti mainstream o di misinformation
+ */
+
 public class Fonts {
 
     private static final Logger LOG = Logger.getLogger(Fonts.class);
@@ -25,12 +29,21 @@ public class Fonts {
         });
     }
 
+    public static void main(String[] args){
+
+        Tuple2<JavaRDD<QueryResult>, JavaSparkContext> rdd2jsc = loadDocument();
+
+        execute(rdd2jsc._1(), rdd2jsc._2());
+
+        rdd2jsc._2().close();
+    }
+
     public static void execute(JavaRDD<QueryResult> rdd, JavaSparkContext jsc) {
-        JavaPairRDD<String,Long> r = rdd
-                .mapToPair(a -> new Tuple2<>(a.getType_page(),a.getTweet().getUser().getId()))
+        JavaPairRDD<String,String> r = rdd
+                .mapToPair(a -> new Tuple2<>(a.getType_page(),"'" + a.getTweet().getUser().getScreenName().replaceAll("[^a-zA-Z0-9]","") + "'"))
                 .distinct();
 
-        JavaPairRDD<String, Iterable<Long>> s = r
+        JavaPairRDD<String, Iterable<String>> s = r
                 .groupByKey();
 
         JavaRDD<Document> mongordd = s
@@ -39,17 +52,5 @@ public class Fonts {
                         "}"));
 
         MongoSpark.save(mongordd, WriteConfig.create(jsc));
-    }
-
-    public static void main(String[] args){
-        Tuple2<JavaRDD<QueryResult>, JavaSparkContext> rdd2jsc = loadDocument();
-
-        JavaSparkContext jsc = rdd2jsc._2();
-        JavaRDD<QueryResult> rdd = rdd2jsc._1();
-
-        execute(rdd, jsc);
-
-        jsc.close();
-
     }
 }

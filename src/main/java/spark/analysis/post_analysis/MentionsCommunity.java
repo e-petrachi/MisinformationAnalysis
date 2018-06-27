@@ -20,6 +20,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.TreeSet;
 
+/**
+ * Communities di utenti che hanno utilizzato le stesse mentions
+ * (utili ad identificare comunità di diffusione automatica di misinformation)
+ *
+ */
+
 public class MentionsCommunity {
 
     private static final Logger LOG = Logger.getLogger(MentionsCommunity.class);

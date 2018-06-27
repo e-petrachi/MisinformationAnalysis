@@ -17,6 +17,12 @@ import spark.utilities.MongoRDDLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 
+/**
+ * Gruppi di utenti che hanno utilizzato gli stessi hashtag
+ * (utili ad identificare comunità di diffusione automatica di misinformation)
+ *
+ * Filtro gruppi di cui ho almeno 6 hashtag
+ */
 public class HashtagsGroup {
 
     private static final Logger LOG = Logger.getLogger(HashtagsGroup.class);

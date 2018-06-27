@@ -19,6 +19,13 @@ import spark.utilities.MongoRDDLoader;
 import java.util.HashSet;
 import java.util.TreeSet;
 
+/**
+ * Communities di utenti che hanno utilizzato gli stessi hashtag e mention
+ * (utili ad identificare comunità di diffusione automatica di misinformation)
+ *
+ * Scelgo comunità con la stessa polarità
+ */
+
 public class HMCommunities {
 
     private static final Logger LOG = Logger.getLogger(HMCommunities.class);

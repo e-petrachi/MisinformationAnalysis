@@ -20,6 +20,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.TreeSet;
 
+/**
+ * Communities di utenti che hanno utilizzato gli stessi hashtag
+ * (utili ad identificare comunità di diffusione automatica di misinformation)
+ *
+ */
+
 public class HashtagsCommunity {
 
     private static final Logger LOG = Logger.getLogger(HashtagsCommunity.class);
