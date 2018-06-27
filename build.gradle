@@ -142,9 +142,45 @@ task fatJar6s(type: Jar) {
     manifest {
         attributes  'Implementation-Title': 'Gradle Jar File Example',
                 'Implementation-Version': version,
-                'Main-Class': 'spark.post_analysis.CommunitiesHashtag'
+                'Main-Class': 'spark.analysis.post_analysis.HashtagsCommunity'
     }
-    baseName = 'CommunitiesHashtag-all'
+    baseName = 'HashtagsCommunity-all'
+    with jar
+    zip64 = true
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
+}
+
+task fatJar7s(type: Jar) {
+    dependsOn configurations.runtime
+    from {
+        (configurations.runtime - configurations.provided_2).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    manifest {
+        attributes  'Implementation-Title': 'Gradle Jar File Example',
+                'Implementation-Version': version,
+                'Main-Class': 'spark.analysis.post_analysis.MentionsCommunity'
+    }
+    baseName = 'MentionsCommunity-all'
+    with jar
+    zip64 = true
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
+}
+
+task fatJar8s(type: Jar) {
+    dependsOn configurations.runtime
+    from {
+        (configurations.runtime - configurations.provided_2).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    manifest {
+        attributes  'Implementation-Title': 'Gradle Jar File Example',
+                'Implementation-Version': version,
+                'Main-Class': 'spark.analysis.post_analysis.Communities'
+    }
+    baseName = 'Communities-all'
     with jar
     zip64 = true
     exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
@@ -167,6 +203,9 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
     compile group: 'log4j', name: 'log4j', version: '1.2.17'
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.2'
+
     compile group: 'org.json', name: 'json', version: '20180130'
 
     provided_1 group: 'org.apache.spark', name: 'spark-core_2.11', version: '2.3.0'
@@ -180,6 +219,4 @@ dependencies {
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '+'
     compile 'de.undercouch:bson4jackson:+'
     compile group: 'org.jongo', name: 'jongo', version: '+'
-    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
-    compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.2'
 }

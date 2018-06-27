@@ -1,4 +1,4 @@
-package spark.post_analysis;
+package spark.analysis.post_analysis;
 
 import com.mongodb.spark.MongoSpark;
 import com.mongodb.spark.config.WriteConfig;
@@ -11,8 +11,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.bson.Document;
 import scala.Tuple2;
 import scala.Tuple3;
-import spark.model.post_model.MentionsGroup;
-import spark.model.post_model.HashtagsGroup;
+import spark.model.post_model.GroupsMention;
 import spark.model.post_model.Polarity;
 import spark.utilities.MongoRDDLoader;
 
@@ -21,27 +20,27 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.TreeSet;
 
-public class CommunitiesHashtag {
+public class MentionsCommunity {
 
-    private static final Logger LOG = Logger.getLogger(CommunitiesHashtag.class);
+    private static final Logger LOG = Logger.getLogger(MentionsCommunity.class);
     static { LOG.setLevel(Level.DEBUG);}
 
     public static Tuple3<JavaMongoRDD<Document>, JavaMongoRDD<Document>, JavaSparkContext> loadDocument() {
-        MongoRDDLoader ml = new MongoRDDLoader("bigdata","hashtagsgroup","bigdata","communitiesHashtag");
+        MongoRDDLoader ml = new MongoRDDLoader("bigdata","mentionsgroup","bigdata","communitiesMention");
 
         JavaSparkContext jsc = ml.getSparkContext();
 
-        JavaMongoRDD<Document> hashtagsgroup = ml.getMongoRDD(jsc);
+        JavaMongoRDD<Document> mentionsgroup = ml.getMongoRDD(jsc);
         JavaMongoRDD<Document> polarity = ml.getMongoRDDOverride(jsc, "bigdata", "polarity");
 
-        return new Tuple3<>(hashtagsgroup,polarity,jsc);
+        return new Tuple3<>(mentionsgroup,polarity,jsc);
     }
 
     public static void main(String[] args){
         Tuple3<JavaMongoRDD<Document>,JavaMongoRDD<Document>, JavaSparkContext> rdd_rdd2jsc = loadDocument();
 
         JavaSparkContext jsc = rdd_rdd2jsc._3();
-        JavaRDD<HashtagsGroup> rdd_1 = rdd_rdd2jsc._1().map(doc -> new HashtagsGroup(doc));
+        JavaRDD<GroupsMention> rdd_1 = rdd_rdd2jsc._1().map(doc -> new GroupsMention(doc));
         JavaRDD<Polarity> rdd_2 = rdd_rdd2jsc._2().map(doc -> new Polarity(doc));
 
         execute(rdd_1, rdd_2, jsc);
@@ -50,34 +49,34 @@ public class CommunitiesHashtag {
 
     }
 
-    public static void execute(JavaRDD<HashtagsGroup> hashtagsgroup, JavaRDD<Polarity> polarity, JavaSparkContext jsc) {
+    public static void execute(JavaRDD<GroupsMention> mentionsgroup, JavaRDD<Polarity> polarity, JavaSparkContext jsc) {
 
-        // key + <hashtag, users_group>
-        JavaPairRDD<String,Tuple2<String, HashSet<String>>> t = hashtagsgroup
-                .mapToPair( a -> new Tuple2<>("hashtag",new Tuple2<>(a.getHashtag(),a.getUsersSet())))
+        // key + <mention, users_group>
+        JavaPairRDD<String,Tuple2<String, HashSet<String>>> t = mentionsgroup
+                .mapToPair( a -> new Tuple2<>("mention",new Tuple2<>(a.getMention(),a.getUsersSet())))
                 .filter( a -> a._2()._1().matches("[a-zA-Z0-9]*"));
 
-        // key + <<hashtag, users_group>, <hashtag, users_group>>
+        // key + <<mention, users_group>, <mention, users_group>>
         JavaPairRDD<String,Tuple2<Tuple2<String,HashSet<String>>,Tuple2<String,HashSet<String>>>> tt = t
                 .join(t);
 
-        // <<hashtag, users_group>, <hashtag, users_group>>
+        // <<mention, users_group>, <mention, users_group>>
         JavaPairRDD<Tuple2<String,HashSet<String>>,Tuple2<String,HashSet<String>>> s = tt
                 .mapToPair(a -> a._2())
                 .filter( a -> !a._1()._1().equals(a._2()._1()));
 
-        // <<hashtag, users_group>, <hashtag, users_group>>
+        // <<mention, users_group>, <mention, users_group>>
         JavaPairRDD<Tuple2<String,HashSet<String>>,Tuple2<String,HashSet<String>>> s_star = s
-                .filter( a -> compareTo(a._1()._2(),a._2()._2()));
+                .filter( a -> Communities.compareTo(a._1()._2(),a._2()._2()));
 
-        // <<hashtag, users_group>, [hashtag, ...]>
+        // <<mention, users_group>, [mention, ...]>
         JavaPairRDD<Tuple2<String,HashSet<String>>, Iterable<String>> u = s_star
                 .mapToPair( a -> (a._1()._2().size() > a._2()._2().size()) ?
                         new Tuple2<>(new Tuple2<>(a._2()._1(),a._2()._2()), a._1()._1()) : new Tuple2<>(new Tuple2<>(a._1()._1(),a._1()._2()), a._2()._1()))
                 .distinct()
                 .groupByKey();
 
-        // size , <[hashtag, ...], users_group>
+        // size , <[mention, ...], users_group>
         JavaPairRDD<Integer, Tuple2<TreeSet<String>, HashSet<String>>> v = u
                 .mapToPair( a -> {
                     TreeSet<String> set = new TreeSet<>();
@@ -91,7 +90,7 @@ public class CommunitiesHashtag {
         JavaPairRDD<String,Integer> p = polarity.mapToPair( a -> new Tuple2<>(a.getUser(),a.getPolarity()));
         HashMap<String,Integer> user2polarity = new HashMap<>(p.collectAsMap());
 
-        // size , <[hashtag, ...], users_group>
+        // size , <[mention, ...], users_group>
         JavaPairRDD<Tuple3<Integer,String,Double>, Tuple2<TreeSet<String>, HashSet<String>>> w = v
                 .mapToPair( a -> {
 
@@ -107,7 +106,7 @@ public class CommunitiesHashtag {
                 });
 
         JavaRDD<Document> mongordd = w
-                .map(a -> Document.parse("{'hashtags': " + a._2()._1() +
+                .map(a -> Document.parse("{'mentions': " + a._2()._1() +
                         ", 'users': " + a._2()._2() +
                         ", 'size': " + a._1()._1() +
                         ", 'polarity': " + a._1()._2() +
@@ -116,29 +115,5 @@ public class CommunitiesHashtag {
 
         MongoSpark.save(mongordd, WriteConfig.create(jsc));
 
-    }
-
-
-    private static boolean compareTo(HashSet<String> a ,HashSet<String> b){
-        if (a.hashCode() != b.hashCode()){
-            if (a.size() >= b.size()){
-                return containsSome(a,b);
-            } else {
-                return containsSome(b,a);
-            }
-        }
-        return true;
-    }
-    private static boolean containsSome(HashSet<String> max,HashSet<String> min){
-        double threshold = 1;
-
-        for (String s : min){
-            if (!max.contains(s)){
-                threshold = threshold - 1.0/min.size();
-            }
-            if (threshold < 0.8)
-                return false;
-        }
-        return true;
     }
 }

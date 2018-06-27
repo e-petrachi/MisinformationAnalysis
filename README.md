@@ -12,7 +12,12 @@
   
 ```$SPARK_HOME/bin/spark-submit --class spark.analysis.MentionsGroup ~/Development/JAVA/MisinformationAnalysis/build/libs/MentionsGroup-all-1.0.0.jar```
 
-```$SPARK_HOME/bin/spark-submit --class spark.post_analysis.CommunitiesHashtag ~/Development/JAVA/MisinformationAnalysis/build/libs/CommunitiesHashtag-all-1.0.0.jar```
+```$SPARK_HOME/bin/spark-submit --class spark.analysis.post_analysis.HashtagsCommunity ~/Development/JAVA/MisinformationAnalysis/build/libs/HashtagsCommunity-all-1.0.0.jar```
+   
+```$SPARK_HOME/bin/spark-submit --class spark.analysis.post_analysis.MentionsCommunity ~/Development/JAVA/MisinformationAnalysis/build/libs/MentionsCommunity-all-1.0.0.jar```
+
+```$SPARK_HOME/bin/spark-submit --class spark.analysis.post_analysis.Communities ~/Development/JAVA/MisinformationAnalysis/build/libs/Communities-all-1.0.0.jar```
+
 
 ### EXPORT to CSV
 

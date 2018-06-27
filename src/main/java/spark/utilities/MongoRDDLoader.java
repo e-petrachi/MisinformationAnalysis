@@ -14,7 +14,6 @@ import scala.Tuple2;
 import spark.model.QueryResult;
 
 import org.apache.spark.api.java.function.Function;
-import spark.model.post_model.HashtagsGroup;
 
 public class MongoRDDLoader {
 

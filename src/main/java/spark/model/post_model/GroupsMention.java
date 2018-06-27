@@ -10,29 +10,25 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class HashtagsGroup implements Serializable {
+public class GroupsMention implements Serializable {
 
-    private String hashtag;
+    private String mention;
     private int size;
     private ArrayList<String> users;
 
-    private static final Logger LOG = Logger.getLogger(HashtagsGroup.class);
+    private static final Logger LOG = Logger.getLogger(GroupsMention.class);
     static { LOG.setLevel(Level.DEBUG);}
 
-    public HashtagsGroup(Document doc) {
+    public GroupsMention(Document doc) {
         JSONObject object = new JSONObject(doc.toJson());
-        this.setHashtag(object.getString("hashtag"));
+        this.setMention(object.getString("mention"));
         this.setSize(object.getInt("size"));
         this.setUsers(object.optJSONArray("users"));
     }
 
-    public String getHashtag() {
-        return hashtag;
-    }
+    public String getMention() { return mention; }
 
-    public void setHashtag(String hashtag) {
-        this.hashtag = hashtag;
-    }
+    public void setMention(String mention) { this.mention = mention; }
 
     public int getSize() {
         return size;

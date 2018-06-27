@@ -9,41 +9,41 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.TreeSet;
 
-public class CommunitiesHashtag implements Serializable {
+public class CommunitiesMention implements Serializable {
 
-    private ArrayList<String> hashtags;
+    private ArrayList<String> mentions;
     private ArrayList<String> users;
     private int size;
     private double polarity_value;
     private String polarity;
 
-    public CommunitiesHashtag(){}
+    public CommunitiesMention(){}
 
-    public CommunitiesHashtag(Document doc) {
+    public CommunitiesMention(Document doc) {
         JSONObject object = new JSONObject(doc.toJson());
         this.setSize(object.getInt("size"));
         this.setPolarity_value(object.getDouble("polarity_value"));
         this.setPolarity(object.getString("polarity"));
-        this.setHashtags(object.optJSONArray("hashtags"));
+        this.setMentions(object.optJSONArray("mentions"));
         this.setUsers(object.optJSONArray("users"));
     }
 
-    public ArrayList<String> getHashtags() {
-        return hashtags;
+    public ArrayList<String> getMentions() {
+        return mentions;
     }
 
-    public TreeSet<String> getHashtagsSet() {
-        return new TreeSet<>(hashtags);
+    public TreeSet<String> getMentionsSet() {
+        return new TreeSet<>(mentions);
     }
 
-    public void setHashtags(ArrayList<String> hashtags) {
-        this.hashtags = hashtags;
+    public void setMentions(ArrayList<String> mentions) {
+        this.mentions = mentions;
     }
 
-    public void setHashtags(JSONArray hashtags) {
-        this.hashtags = new ArrayList<>();
-        for (int i=0;i<hashtags.length();i++){
-            this.hashtags.add("'#" + hashtags.getString(i) + "'");
+    public void setMentions(JSONArray mentions) {
+        this.mentions = new ArrayList<>();
+        for (int i=0;i<mentions.length();i++){
+            this.mentions.add("'@" + mentions.getString(i) + "'");
         }
     }
 
