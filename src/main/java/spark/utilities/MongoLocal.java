@@ -7,6 +7,7 @@ import com.mongodb.MongoClientOptions;
 import com.mongodb.client.MongoDatabase;
 import org.apache.log4j.Level;
 import org.jongo.*;
+import spark.model.post_model.Communities;
 import spark.model.post_model.CommunitiesHashtag;
 import spark.model.post_model.CommunitiesMention;
 
@@ -67,6 +68,9 @@ public class MongoLocal {
     }
     public MongoCursor<CommunitiesMention> findAllCommunitiesMention() {
         return collection.find().as(CommunitiesMention.class);
+    }
+    public MongoCursor<Communities> findAllCommunities() {
+        return collection.find().as(Communities.class);
     }
 
 }

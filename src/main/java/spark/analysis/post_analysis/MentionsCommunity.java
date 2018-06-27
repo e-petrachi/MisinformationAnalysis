@@ -67,7 +67,7 @@ public class MentionsCommunity {
 
         // <<mention, users_group>, <mention, users_group>>
         JavaPairRDD<Tuple2<String,HashSet<String>>,Tuple2<String,HashSet<String>>> s_star = s
-                .filter( a -> Communities.compareTo(a._1()._2(),a._2()._2()));
+                .filter( a -> HMCommunities.compareTo(a._1()._2(),a._2()._2()));
 
         // <<mention, users_group>, [mention, ...]>
         JavaPairRDD<Tuple2<String,HashSet<String>>, Iterable<String>> u = s_star

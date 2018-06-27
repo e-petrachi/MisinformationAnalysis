@@ -16,7 +16,7 @@
    
 ```$SPARK_HOME/bin/spark-submit --class spark.analysis.post_analysis.MentionsCommunity ~/Development/JAVA/MisinformationAnalysis/build/libs/MentionsCommunity-all-1.0.0.jar```
 
-```$SPARK_HOME/bin/spark-submit --class spark.analysis.post_analysis.Communities ~/Development/JAVA/MisinformationAnalysis/build/libs/Communities-all-1.0.0.jar```
+```$SPARK_HOME/bin/spark-submit --class spark.analysis.post_analysis.HMCommunities ~/Development/JAVA/MisinformationAnalysis/build/libs/HMCommunities-all-1.0.0.jar```
 
 
 ### EXPORT to CSV

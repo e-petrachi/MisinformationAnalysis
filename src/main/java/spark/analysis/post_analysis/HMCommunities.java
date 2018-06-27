@@ -19,9 +19,9 @@ import spark.utilities.MongoRDDLoader;
 import java.util.HashSet;
 import java.util.TreeSet;
 
-public class Communities {
+public class HMCommunities {
 
-    private static final Logger LOG = Logger.getLogger(Communities.class);
+    private static final Logger LOG = Logger.getLogger(HMCommunities.class);
     static { LOG.setLevel(Level.DEBUG);}
 
     public static Tuple3<JavaMongoRDD<Document>, JavaMongoRDD<Document>, JavaSparkContext> loadDocument() {

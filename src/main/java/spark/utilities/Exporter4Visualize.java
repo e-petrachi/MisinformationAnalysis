@@ -3,6 +3,7 @@ package spark.utilities;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jongo.MongoCursor;
+import spark.model.post_model.Communities;
 import spark.model.post_model.CommunitiesHashtag;
 import spark.model.post_model.CommunitiesMention;
 
@@ -32,6 +33,9 @@ public class Exporter4Visualize {
         writeCsv4VisualizeCommunitiesMention(communitiesMention, 90.0);
         writeCsv4VisualizeCommunitiesMention(communitiesMention, 99.0);
 
+        mongoLocal.setCollection("communities");
+        MongoCursor<Communities> communities = mongoLocal.findAllCommunities();
+        writeCsv4VisualizeCommunities(communities);
     }
 
     private static void writeCsv4VisualizeCommunitiesHashtag(MongoCursor<CommunitiesHashtag> communities, double minPercentage) throws IOException {
@@ -69,6 +73,25 @@ public class Exporter4Visualize {
                 for (String m : ch.getMentions()) {
                     pw.write("" + m + ";" + i + ";" + ch.getSize() + ";" + ch.getPolarity() + ";" + Math.abs(ch.getPolarity_value()) + "\n");
                 }
+            }
+            i++;
+        }
+
+        pw.close();
+    }
+
+    private static void writeCsv4VisualizeCommunities(MongoCursor<Communities> communities) throws IOException {
+        File file = new File("src/main/resources/communities.csv");
+        file.createNewFile();
+
+        PrintWriter pw = new PrintWriter(file);
+
+        pw.write("HashtagOrMention;Group;Size;Polarity\n");
+
+        int i = 0;
+        for (Communities ch: communities){
+            for (String m : ch.getHashtags_mentions()) {
+                pw.write("" + m + ";" + i + ";" + ch.getSize() + ";" + ch.getPolarity() + "\n");
             }
             i++;
         }

@@ -178,9 +178,9 @@ task fatJar8s(type: Jar) {
     manifest {
         attributes  'Implementation-Title': 'Gradle Jar File Example',
                 'Implementation-Version': version,
-                'Main-Class': 'spark.analysis.post_analysis.Communities'
+                'Main-Class': 'spark.analysis.post_analysis.HMCommunities'
     }
-    baseName = 'Communities-all'
+    baseName = 'HMCommunities-all'
     with jar
     zip64 = true
     exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
