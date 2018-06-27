@@ -68,9 +68,8 @@ public class HashtagsGroup {
         Tuple2<JavaRDD<QueryResult>, JavaSparkContext> rdd2jsc = loadDocument();
 
         JavaSparkContext jsc = rdd2jsc._2();
-        JavaRDD<QueryResult> rdd = rdd2jsc._1();
 
-        execute(rdd, jsc);
+        execute(rdd2jsc._1(), jsc);
 
         jsc.close();
 

@@ -126,8 +126,8 @@ public class SocialBot {
         JavaRDD<QueryResult> rdd = rdd2jsc._1();
 
         execute(rdd, jsc);
-        
-        jsc.close();
+
+        rdd2jsc._2().close();
 
     }
 }
