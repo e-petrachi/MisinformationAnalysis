@@ -35,7 +35,7 @@ Filtro utenti di cui ho almeno 6 tweet
 * ANALISI 4
 
 Gruppi di utenti che hanno utilizzato gli stessi *hashtag* (utili ad identificare comunità di diffusione automatica di misinformation).
- Filtro gruppi di cui ho almeno 6 hashtag
+Filtro gruppi di cui ho almeno 6 hashtag
  
 ```zsh
 > gradle fatJar4s
@@ -45,7 +45,7 @@ Gruppi di utenti che hanno utilizzato gli stessi *hashtag* (utili ad identificar
 * ANALISI 5
 
 Gruppi di utenti che hanno utilizzato le stesse *mention* (utili ad identificare comunità di diffusione automatica di misinformation).
- Filtro gruppi di cui ho almeno 6 hashtag
+Filtro gruppi di cui ho almeno 6 hashtag
  
 ```zsh
 > gradle fatJar5s
@@ -78,8 +78,3 @@ Communities di utenti che hanno utilizzato gli stessi hashtag e mention. Scelgo 
 > gradle fatJar8s
 > $SPARK_HOME/bin/spark-submit --class spark.analysis.post_analysis.HMCommunities ~/Development/JAVA/MisinformationAnalysis/build/libs/HMCommunities-all-1.0.0.jar
 ```
-
-
-### EXPORT to CSV
-
-```mongoexport --host localhost --db bigdata --collection communitiesHashtag --query '{ $or : [ { 'polarity_value' : {$gte: 75 } },  {'polarity_value' : { $lte : -75} }] }' --type=csv --out ~/Desktop/communitiesHashtag.csv --fields hashtags,polarity,polarity_value```
