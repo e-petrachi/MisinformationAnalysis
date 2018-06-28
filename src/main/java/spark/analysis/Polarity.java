@@ -18,8 +18,8 @@ import java.util.ArrayList;
 
 /**
  * Polarità degli utenti con le relative percentuali e quantità di tweet per ognuno di essi +
- * Identificazione di utenti fonte di misinformation in funzione del rapporto friends/followers
- * (valori bassi rispetto alla media indicano probabili fonti)
+ * Identificazione di utenti fonte di misinformation o information in funzione del rapporto friends/followers
+ * (valori bassi rispetto alla media indicano probabili fonti < soglia 1.0)
  */
 
 public class Polarity {
@@ -56,31 +56,31 @@ public class Polarity {
         // < user, friends/followers > + <type , percentage, counter>
         JavaPairRDD<Tuple2<String,Double>, Tuple3<String,Double,Integer>> t = s
                 .mapToPair(a -> {
-                            ArrayList<Tuple2<String, Integer>> array = new ArrayList<>();
-                            a._2().forEach(b -> array.add(new Tuple2<>(b._1(), b._2())));
+                    ArrayList<Tuple2<String, Integer>> array = new ArrayList<>();
+                    a._2().forEach(b -> array.add(new Tuple2<>(b._1(), b._2())));
 
-                            if (array.size() == 1) {
-                                double percent = array.get(0)._1().equalsIgnoreCase("misinformation") ? 100.0 : 0.0;
-                                return new Tuple2<>(a._1(), new Tuple3<>("misinformation", percent, array.get(0)._2()));
+                    if (array.size() == 1) {
+                        double percent = array.get(0)._1().equalsIgnoreCase("misinformation") ? 100.0 : 0.0;
+                        return new Tuple2<>(a._1(), new Tuple3<>("misinformation", percent, array.get(0)._2()));
 
-                            } else {
-                                double mis_count = 0.0;
-                                double inf_count = 0.0;
+                    } else {
+                        double mis_count = 0.0;
+                        double inf_count = 0.0;
 
-                                if (array.get(0)._1().equalsIgnoreCase("misinformation")) {
-                                    mis_count = (double) array.get(0)._2();
-                                    inf_count = (double) array.get(1)._2();
-                                } else {
-                                    mis_count = (double) array.get(1)._2();
-                                    inf_count = (double) array.get(0)._2();
-                                }
+                        if (array.get(0)._1().equalsIgnoreCase("misinformation")) {
+                            mis_count = (double) array.get(0)._2();
+                            inf_count = (double) array.get(1)._2();
+                        } else {
+                            mis_count = (double) array.get(1)._2();
+                            inf_count = (double) array.get(0)._2();
+                        }
 
-                                int total = (int) (mis_count + inf_count);
-                                double result = Math.round((mis_count / total) * 10000.0);
-                                return new Tuple2<>(a._1(), new Tuple3<>("misinformation", result / 100.0, total));
-                            }
-                        });
-                //}).filter( a -> a._2()._3() > 5);
+                        int total = (int) (mis_count + inf_count);
+                        double result = Math.round((mis_count / total) * 10000.0);
+                        return new Tuple2<>(a._1(), new Tuple3<>("misinformation", result / 100.0, total));
+                    }
+                });
+
 
         JavaRDD<Document> mongordd = t
                 .map(a -> Document.parse("{'user': " + a._1()._1() +
