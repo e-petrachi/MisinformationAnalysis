@@ -90,7 +90,7 @@ public class SocialBot {
                 .mapToPair( a -> {
                     double p = Math.round(a._2()._2()*10000.0)/100.0;
                     return new Tuple2<>(new Tuple2<>(a._1(),a._2()._3()),
-                            "{'hashtag': '" + a._2()._1() + "','percentage': '" + p + "'}");
+                            "{'hashtag': '" + a._2()._1() + "','percentage': " + p + "}");
                 })
                 .groupByKey();
 
@@ -99,7 +99,7 @@ public class SocialBot {
                 .mapToPair( a -> {
                     double p = Math.round(a._2()._2()*10000.0)/100.0;
                     return new Tuple2<>(new Tuple2<>(a._1(),a._2()._3()),
-                            "{'mention': " + a._2()._1() + ",'percentage': '" + p + "'}");
+                            "{'mention': " + a._2()._1() + ",'percentage': " + p + "}");
                 })
                 .groupByKey();
 
