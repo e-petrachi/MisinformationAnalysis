@@ -85,9 +85,9 @@ public class Polarity {
         JavaRDD<Document> mongordd = t
                 .map(a -> Document.parse("{'user': " + a._1()._1() +
                         ", 'misinformation': " + a._2()._2() +
-                        ", 'information':" + (100.0 - a._2()._2()) +
+                        ", 'information':" + Math.round((100.0 - a._2()._2()) * 100.0)/100.0 +
                         ", 'tweets':" + a._2()._3() +
-                        ", 'friends/followers':" + a._1()._2() +
+                        ", 'friends_followers':" + a._1()._2() +
                         "}"));
 
         MongoSpark.save(mongordd, WriteConfig.create(jsc));

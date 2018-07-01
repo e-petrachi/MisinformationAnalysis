@@ -3,8 +3,12 @@ package spark.utilities;
 import com.mongodb.spark.config.ReadConfig;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
+import org.apache.spark.sql.SQLContext;
 import org.apache.spark.sql.SparkSession;
 import org.bson.Document;
 
@@ -50,6 +54,24 @@ public class MongoRDDLoader {
         JavaRDD<QueryResult> rdd_qr = rdd.map(function);
 
         return new Tuple2<>(rdd_qr,jsc);
+    }
+
+    public Tuple2<Dataset<Row>, SQLContext> openloaderSQL(){
+        SparkSession spark = SparkSession.builder()
+                .master("local")
+                .appName("MisinformationAnalysis")
+                .config("spark.mongodb.input.uri", "mongodb://127.0.0.1:27017/" + dbname_i + "." + coll_input)
+                .getOrCreate();
+
+        JavaSparkContext jsc = new JavaSparkContext(spark.sparkContext());
+
+        jsc.setLogLevel("ERROR");
+
+        SQLContext sqlContext = SQLContext.getOrCreate(jsc.sc());
+
+        Dataset<Row> df = MongoSpark.load(jsc).toDF();
+
+        return new Tuple2<>(df,sqlContext);
     }
 
     public Tuple2<JavaMongoRDD<Document>, JavaSparkContext> openloaderDocument(){
