@@ -23,16 +23,12 @@ public class Exporter4Visualize {
 
         mongoLocal.setCollection("communitiesHashtag");
         MongoCursor<CommunitiesHashtag> communitiesHashtag = mongoLocal.findAllCommunitiesHashtag();
-        writeCsv4VisualizeCommunitiesHashtag(communitiesHashtag, 75.0);
-        writeCsv4VisualizeCommunitiesHashtag(communitiesHashtag, 90.0);
         writeCsv4VisualizeCommunitiesHashtag(communitiesHashtag, 99.0);
         writeCsv4VisualizeCommunitiesHashtagMin(communitiesHashtag);
 
 
         mongoLocal.setCollection("communitiesMention");
         MongoCursor<CommunitiesMention> communitiesMention = mongoLocal.findAllCommunitiesMention();
-        writeCsv4VisualizeCommunitiesMention(communitiesMention, 75.0);
-        writeCsv4VisualizeCommunitiesMention(communitiesMention, 90.0);
         writeCsv4VisualizeCommunitiesMention(communitiesMention, 99.0);
         writeCsv4VisualizeCommunitiesMentionMin(communitiesMention);
 

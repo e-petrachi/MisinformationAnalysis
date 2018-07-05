@@ -1,5 +1,8 @@
 # MISINFORMATION ANALYSIS
 
+Un piccolo progetto SPARK e SPARKSQL per fare delle analisi in un contesto distribuito su dati estrapolati da Twitter e salvati in MongoDB.
+Ogni task è formato da una applicazione avviabile separatamente utilizzando GRADLE.
+
 ### HOW TO LAUNCH
 
 * ANALISI 0
